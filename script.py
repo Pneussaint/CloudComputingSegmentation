@@ -17,10 +17,6 @@ def segImage():
 
     # Open the image using PIL
     image = Image.open(image_file)
-    w = image.width
-    h = image.height
-    if(not( h % 32 == 0 and w % 32 == 0)):
-        image = image.resize((h + 32 - h % 32, w + 32 - w % 32))
     
     # Perform the segmentation
     img = segmentation(image)
