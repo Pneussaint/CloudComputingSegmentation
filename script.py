@@ -1,20 +1,12 @@
-import os
-import torch
-import matplotlib.pyplot as plt
-import pytorch_lightning as pl
-import segmentation_models_pytorch as smp
-import numpy as np
-
-from pprint import pprint
-from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
-from torch.utils.data import DataLoader
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, render_template
 from PIL import Image
 from io import BytesIO
-import requests
-import torchvision.transforms as T
 from segmentation.model import segmentation, get_weights
 app = Flask(__name__)
+
+@app.route("/")
+def index():
+    return render_template('upload.html')
 
 @app.route('/segImage', methods=['POST'])
 def segImage():
@@ -43,4 +35,4 @@ def segImage():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=80, host='0.0.0.0', debug=True)
