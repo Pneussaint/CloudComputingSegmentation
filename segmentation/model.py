@@ -25,9 +25,6 @@ model = torchvision.models.detection.maskrcnn_resnet50_fpn(
     weights=MaskRCNN_ResNet50_FPN_Weights.DEFAULT)
 model.eval()
 
-def get_weights():
-    return MaskRCNN_ResNet50_FPN_Weights.DEFAULT
-
 def random_colour_masks(image):
     colours = [[0, 255, 0], [0, 0, 255], [255, 0, 0], [0, 255, 255], [255, 255, 0], [
         255, 0, 255], [80, 70, 180], [250, 80, 190], [245, 145, 50], [70, 150, 250], [50, 190, 190]]
@@ -55,6 +52,19 @@ def get_prediction(img, threshold):
     pred_boxes = pred_boxes[:pred_t+1]
     pred_class = pred_class[:pred_t+1]
     return masks, pred_boxes, pred_class
+
+
+def get_prediction_score(img, threshold=0.5):
+    transform = T.Compose([T.ToTensor()])
+    img = transform(img)
+    pred = model([img])
+    pred_score = list(pred[0]['scores'].detach().numpy())
+    pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1]
+    pred_class = [COCO_INSTANCE_CATEGORY_NAMES[i]
+                  for i in list(pred[0]['labels'].numpy())]
+    pred_class = pred_class[:pred_t+1]
+    pred_score = pred_score[:pred_t+1]
+    return pred_score, pred_class
 
 
 def segmentation(img_path, threshold=0.5, rect_th=3, text_size=1, text_th=3):
