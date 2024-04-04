@@ -3,6 +3,6 @@ Pillow
 torchvision
 numpy
 opencv-python-headless
-panda
+pandas
 fiftyone
 fiftyone-db-ubuntu2204
