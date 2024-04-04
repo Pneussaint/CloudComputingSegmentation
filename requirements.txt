@@ -3,3 +3,5 @@ Pillow
 torchvision
 numpy
 opencv-python-headless
+panda
+fiftyone

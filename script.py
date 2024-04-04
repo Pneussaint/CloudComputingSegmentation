@@ -2,12 +2,19 @@ import csv
 from flask import Flask, request, jsonify, send_file, render_template
 from PIL import Image
 from io import BytesIO, StringIO
-from segmentation.model import segmentation, get_prediction_score
+import pandas as pd
+from segmentation.model import segmentation, get_prediction_score, get_test_score
+import csv
+from flask import send_file
 app = Flask(__name__)
 
 @app.route("/")
 def index():
     return render_template('upload.html')
+
+@app.route("/admin")
+def admin():
+    return render_template('admin.html')
 
 @app.route('/segImage', methods=['POST'])
 def segImage():
@@ -56,6 +63,33 @@ def get_weights():
     output.seek(0)
 
     return send_file(output, mimetype='text/csv', as_attachment=True, download_name='scores.csv')
+
+@app.route('/getTest', methods=['GET'])
+def get_test():
+    results, classes = get_test_score()
+    results_str = results.report(classes=classes)
+    # Create a list of dictionaries for each class
+    data = [{'Class': key, **value} for key, value in results_str.items()]
+
+    # Define the fieldnames for the CSV file
+    fieldnames = ['Class', 'precision', 'recall', 'f1-score', 'support']
+
+    # Create a StringIO object to write the CSV data
+    file = StringIO()
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+    # Write the header and data rows to the CSV file
+    writer.writeheader()
+    writer.writerows(data)
+
+    # Create a BytesIO object to send the CSV file as a response
+    output = BytesIO()
+    output.write(file.getvalue().encode('utf-8'))
+    output.seek(0)
+
+    # Return the CSV file as a response
+    return send_file(output, mimetype='text/csv', as_attachment=True, download_name='results.csv')
+
 
 
 if __name__ == "__main__":

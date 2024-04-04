@@ -1,4 +1,6 @@
 import random
+import fiftyone as fo
+import fiftyone.zoo as foz
 
 import cv2
 import numpy as np
@@ -65,6 +67,26 @@ def get_prediction_score(img, threshold=0.5):
     pred_class = pred_class[:pred_t+1]
     pred_score = pred_score[:pred_t+1]
     return pred_score, pred_class
+
+def get_test_score():
+    dataset = foz.load_zoo_dataset("quickstart")
+    print(dataset)
+
+    # Evaluate the objects in the `predictions` field with respect to the
+    # objects in the `ground_truth` field
+    results = dataset.evaluate_detections(
+        "predictions",
+        gt_field="ground_truth",
+        method="coco",
+        eval_key="eval",
+    )
+
+    # Get the 10 most common classes in the dataset
+    counts = dataset.count_values("ground_truth.detections.label")
+    classes = sorted(counts, key=counts.get, reverse=True)[:10]
+    return results, classes
+
+
 
 
 def segmentation(img_path, threshold=0.5, rect_th=3, text_size=1, text_th=3):
