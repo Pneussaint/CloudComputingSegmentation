@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, send_file, render_template
 from PIL import Image
 from io import BytesIO, StringIO
 import pandas as pd
-from segmentation.model import segmentation, get_prediction_score, get_test_score
+from segmentation.model import segmentation, get_prediction_score
 import csv
 from flask import send_file
 app = Flask(__name__)
@@ -66,21 +66,15 @@ def get_weights():
 
 @app.route('/getTest', methods=['GET'])
 def get_test():
-    results, classes = get_test_score()
-    results_str = results.report(classes=classes)
-    # Create a list of dictionaries for each class
-    data = [{'Class': key, **value} for key, value in results_str.items()]
-
-    # Define the fieldnames for the CSV file
-    fieldnames = ['Class', 'precision', 'recall', 'f1-score', 'support']
-
+    # Export results.csv
+    df = pd.read_csv('results.csv')
     # Create a StringIO object to write the CSV data
     file = StringIO()
-    writer = csv.DictWriter(file, fieldnames=fieldnames)
+    writer = csv.DictWriter(file, fieldnames=df.columns)
 
     # Write the header and data rows to the CSV file
     writer.writeheader()
-    writer.writerows(data)
+    writer.writerows(df.to_dict('records'))
 
     # Create a BytesIO object to send the CSV file as a response
     output = BytesIO()

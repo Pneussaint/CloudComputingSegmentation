@@ -4,5 +4,3 @@ torchvision
 numpy
 opencv-python-headless
 pandas
-fiftyone
-fiftyone-db-ubuntu2204
